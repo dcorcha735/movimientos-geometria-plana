@@ -1,60 +1,39 @@
-# Proyecto Moto-Mates · Movimientos en geometría plana
+# Arreglo de calificaciones en EmailJS
 
-Esta versión incluye:
+## Qué está pasando
+El correo sí se envía, pero el contenido que llega es el de una plantilla genérica de EmailJS.
+Por eso no aparecen ni las notas ni el resumen de los 6 ejercicios.
 
-- ejercicios 1 al 6 en una sola web para GitHub Pages
-- retroalimentación inmediata al terminar cada ejercicio
-- indicación del punto inicial y del orden cuando el ejercicio es ordenado
-- envío final por EmailJS con calificaciones en el cuerpo del correo
-- cabecera del correo con la imagen de Moto-Mates
-- nombre del profesor debajo de `Departamento de Matemáticas`
-- reinicio automático al terminar para preparar un nuevo intento
-- bloqueo si se intenta repetir exactamente el mismo nombre
+## Solución
+1. Entra en EmailJS.
+2. Abre la plantilla `template_3df56cg`.
+3. Cambia los campos así:
+   - To Email: `{{to_email}}`
+   - Subject: `{{subject}}`
+   - Reply To: `{{reply_to}}`
+   - From Name: `{{from_name}}`
+4. En el contenido HTML pega exactamente:
 
-## Archivos
+```html
+{{{body_html}}}
+```
 
-- `index.html` → web principal
-- `moto-mates.png` → logo para la web y para el correo
-- `.nojekyll` → recomendado para GitHub Pages
-- `PLANTILLA_EMAILJS.md` → texto exacto para pegar en tu plantilla de EmailJS
+5. Guarda la plantilla.
+6. Vuelve a probar el ejercicio 6.
 
-## Subida a GitHub
+## URL del logo
+El proyecto ya usa esta URL pública del logo:
 
-1. Entra en tu repositorio.
-2. Pulsa **Add file** o **uploading an existing file**.
-3. Sube `index.html`, `moto-mates.png`, `.nojekyll` y este `README.md`.
-4. Haz **Commit changes**.
-5. En **Settings > Pages** deja:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/(root)`
+```text
+https://dcorcha735.github.io/movimientos-geometria-plana/moto-mates.png
+```
 
-## URL esperada del sitio
-
-Si el repositorio se llama `movimientos-geometria-plana`, la web pública será:
-
-`https://dcorcha735.github.io/movimientos-geometria-plana/`
-
-## Muy importante en EmailJS
-
-Debes abrir la plantilla `template_3df56cg` y sustituir el contenido por la plantilla del archivo `PLANTILLA_EMAILJS.md`.
-
-Si no cambias la plantilla, seguirá llegando el correo genérico de prueba.
-
-## Variables ya configuradas en el proyecto
-
-- Public Key: `WsygDmLij8TCHTJj2`
-- Service ID: `service_540t7za`
-- Template ID: `template_3df56cg`
-- Correo del profesor: `dcorcha735@g.educaand.es`
-
-## Cómo funciona el nuevo intento
-
-Al terminar el ejercicio 6:
-
-- se intenta enviar el correo final
-- se guarda el nombre usado en ese intento
-- la app se reinicia para otro intento completo
-- el siguiente alumno debe escribir el nombre con número al final si repite, por ejemplo `DAVID 2`
-
-Si se vuelve a escribir exactamente el mismo nombre, la app no deja corregir.
+## Resultado esperado
+El email debe llegar con:
+- logo Moto-Mates en cabecera
+- Departamento de Matemáticas
+- David Cortés Chaparro
+- alumno/a, grupo y correo
+- nota total
+- porcentaje
+- detalle de los 6 ejercicios
