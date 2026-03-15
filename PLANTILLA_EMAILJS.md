@@ -1,84 +1,63 @@
-# Plantilla para EmailJS
+# Plantilla exacta para EmailJS
 
-Abre tu plantilla `template_3df56cg` y pon estos campos.
+El problema no está en la web: está en la plantilla de EmailJS.
 
-## Subject
+Tu captura demuestra que EmailJS está usando todavía una plantilla automática genérica en inglés.
+Para que llegue la calificación de los 6 ejercicios, en **EmailJS > Email Templates > template_3df56cg** debes sustituir TODO el contenido por esto.
 
-```text
-{{subject}}
-```
+## Campos de la plantilla
 
-## To Email
-
+### To Email
 ```text
 {{to_email}}
 ```
 
-## Reply-To
+### Subject
+```text
+{{subject}}
+```
 
+### Reply To
 ```text
 {{reply_to}}
 ```
 
-## From Name
-
+### From Name
 ```text
-{{student_name}}
+{{from_name}}
 ```
 
-## Contenido HTML del mensaje
-
-Pega esto en el cuerpo HTML de la plantilla:
+## Content
+Pulsa en el editor de código `<>` y pega exactamente esto:
 
 ```html
-<div style="font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;padding:24px;">
-  <div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #dbe2ea;border-radius:18px;overflow:hidden;">
-    <div style="background:linear-gradient(135deg,#1f4fb2,#3d63d8);padding:22px;color:#fff;">
-      <img src="{{logo_url}}" alt="Moto-Mates" style="width:110px;max-width:100%;display:block;margin-bottom:12px;">
-      <div style="font-size:20px;font-weight:700;">{{department_name}}</div>
-      <div style="font-size:16px;margin-top:4px;">{{teacher_name}}</div>
-    </div>
-
-    <div style="padding:22px;">
-      <h2 style="margin-top:0;margin-bottom:14px;">{{subject}}</h2>
-
-      <p style="line-height:1.6;margin:0 0 14px;">
-        <strong>Alumno/a:</strong> {{student_name}}<br>
-        <strong>Grupo:</strong> {{student_group}}<br>
-        <strong>Correo del alumno/a:</strong> {{student_email}}<br>
-        <strong>Fecha y hora:</strong> {{timestamp}}
-      </p>
-
-      <div style="background:#f8fbff;border:1px solid #dbe8f8;border-radius:14px;padding:14px 16px;margin:0 0 16px;">
-        <strong>Calificación total:</strong> {{score_total}} / {{max_total}}<br>
-        <strong>Porcentaje:</strong> {{percent_total}}%
-      </div>
-
-      <h3 style="margin:16px 0 10px;">Detalle de calificaciones</h3>
-      <pre style="white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px;font-family:Arial,Helvetica,sans-serif;line-height:1.5;">{{exercise_summary}}</pre>
-
-      <p style="margin-top:18px;color:#475569;line-height:1.6;">
-        Este correo ha sido generado automáticamente desde la actividad interactiva de Moto-Mates.
-      </p>
-    </div>
-  </div>
-</div>
+{{{body_html}}}
 ```
 
-## Variables que usa esta plantilla
+## Qué hace
+La web ya envía un bloque HTML completo con:
+- logo Moto-Mates
+- Departamento de Matemáticas
+- David Cortés Chaparro
+- alumno/a y grupo
+- nota total
+- detalle de los 6 ejercicios
 
-- `subject`
-- `to_email`
-- `reply_to`
-- `student_name`
-- `student_group`
-- `student_email`
-- `timestamp`
-- `score_total`
-- `max_total`
-- `percent_total`
-- `exercise_summary`
-- `logo_url`
-- `department_name`
-- `teacher_name`
+Si pones `{{{body_html}}}`, EmailJS insertará el HTML tal cual.
 
+## Si quieres además una versión en texto
+En la parte de texto plano, si tu plantilla la tiene, pega:
+
+```text
+{{message}}
+```
+
+## Muy importante
+No dejes el texto por defecto de EmailJS en inglés.
+Si el contenido de la plantilla sigue poniendo algo parecido a:
+
+```text
+Thank you for reaching out to us! We have received your request...
+```
+
+entonces nunca se verá la calificación, porque esa plantilla no está usando las variables que envía tu página.

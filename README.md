@@ -1,39 +1,44 @@
-# Arreglo de calificaciones en EmailJS
+# Proyecto GitHub Pages · Moto-Mates · versión corregida de reintentos
 
-## Qué está pasando
-El correo sí se envía, pero el contenido que llega es el de una plantilla genérica de EmailJS.
-Por eso no aparecen ni las notas ni el resumen de los 6 ejercicios.
+Esta versión corrige dos cosas importantes:
 
-## Solución
-1. Entra en EmailJS.
-2. Abre la plantilla `template_3df56cg`.
-3. Cambia los campos así:
-   - To Email: `{{to_email}}`
-   - Subject: `{{subject}}`
-   - Reply To: `{{reply_to}}`
-   - From Name: `{{from_name}}`
-4. En el contenido HTML pega exactamente:
+1. **Nuevo intento real al terminar el ejercicio 6**: al finalizar, la app vacía respuestas y correcciones para empezar desde el ejercicio 1.
+2. **Bloqueo de nombre repetido**: conserva en este dispositivo los nombres ya usados, así que para repetir hay que escribir el nombre con número de intento, por ejemplo `DAVID 2`.
 
-```html
-{{{body_html}}}
-```
+## Muy importante
 
-5. Guarda la plantilla.
-6. Vuelve a probar el ejercicio 6.
+- Esta versión usa una clave nueva de almacenamiento local: `motomates_movimientos_v2_retryfix`.
+- Así se evita que el navegador siga cargando estados antiguos donde los ejercicios aparecían ya corregidos.
 
-## URL del logo
-El proyecto ya usa esta URL pública del logo:
+## Cómo actualizar en GitHub
 
-```text
-https://dcorcha735.github.io/movimientos-geometria-plana/moto-mates.png
-```
+Sustituye en tu repositorio estos archivos:
 
-## Resultado esperado
-El email debe llegar con:
-- logo Moto-Mates en cabecera
-- Departamento de Matemáticas
-- David Cortés Chaparro
-- alumno/a, grupo y correo
-- nota total
-- porcentaje
-- detalle de los 6 ejercicios
+- `index.html`
+- `moto-mates.png`
+- `.nojekyll`
+- `README.md`
+- `PLANTILLA_EMAILJS.md`
+- `PLANTILLA_EMAILJS_EXACTA.md`
+
+## Qué hace el botón "Borrar todo"
+
+Borra:
+- respuestas,
+- correcciones,
+- intento actual,
+- y también el historial de nombres usados en ese dispositivo.
+
+## Qué pasa al acabar el ejercicio 6
+
+- se envía el correo final si EmailJS está bien configurado,
+- se avisa de que el siguiente intento debe llevar número,
+- y se prepara automáticamente un nuevo intento vacío.
+
+## Plantilla de EmailJS
+
+Para que llegue la calificación de los 6 ejercicios, usa la plantilla exacta del archivo:
+
+- `PLANTILLA_EMAILJS_EXACTA.md`
+
+Si en EmailJS sigue apareciendo el texto automático en inglés, el problema está en la plantilla, no en la web.

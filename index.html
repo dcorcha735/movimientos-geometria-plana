@@ -380,7 +380,7 @@
         </div>
         <div class="small" style="color:#fff; opacity:.95; font-weight:700;">3.º ESO · Movimientos en geometría plana</div>
       </div>
-      <h1>Ejercicios interactivos del 1 al 6</h1>
+      <h1>Ejercicios interactivos del 1 al 6 · versión corregida</h1>
       <p>El alumnado resuelve cada ejercicio sobre cuadrícula, recibe retroalimentación inmediata con nota y solución al terminar cada uno, y en el ejercicio 6 se envía el resumen final por correo mediante EmailJS.</p>
     </section>
 
@@ -404,7 +404,7 @@
         <button class="secondary" id="resetBtn">Borrar todo</button>
         <button class="ghost" id="exportBtn">Copiar resumen</button>
       </div>
-      <div class="footer-note">La app guarda el progreso en este dispositivo para que el alumnado no lo pierda si recarga la página.</div>
+      <div class="footer-note">La app guarda el progreso en este dispositivo para que el alumnado no lo pierda si recarga la página. Al terminar el intento, se prepara uno nuevo automáticamente; para repetir, cambia el nombre añadiendo el número de intento, por ejemplo: DAVID 2.</div>
       <div id="globalStatus" class="status"></div>
     </section>
 
@@ -445,7 +445,7 @@
       logoUrl: 'https://dcorcha735.github.io/movimientos-geometria-plana/moto-mates.png'
     };
 
-    const STORAGE_KEY = 'motomates_movimientos_v1_emailjs';
+    const STORAGE_KEY = 'motomates_movimientos_v2_retryfix';
     const SVG_NS = 'http://www.w3.org/2000/svg';
     const GRID_UNIT = 34;
     const MARGIN = 28;
@@ -649,6 +649,9 @@
       usedNames: []
     };
     if (!Array.isArray(state.usedNames)) state.usedNames = [];
+    if (Object.keys(state.results || {}).length === EXERCISES.length && EXERCISES.every((ex) => state.results[ex.id]?.checked)) {
+      state.currentExerciseIndex = 0;
+    }
 
     const studentNameInput = document.getElementById('studentName');
     const studentGroupInput = document.getElementById('studentGroup');
@@ -1240,7 +1243,7 @@
     }
 
     function resetAll() {
-      if (!confirm('Se borrarán todas las respuestas y correcciones guardadas en este dispositivo.')) return;
+      if (!confirm('Se borrarán todas las respuestas, correcciones y nombres usados guardados en este dispositivo.')) return;
       localStorage.removeItem(STORAGE_KEY);
       state.student = { name: '', group: '', email: '' };
       state.currentExerciseIndex = 0;
@@ -1255,7 +1258,7 @@
       studentGroupInput.value = '';
       studentEmailInput.value = '';
       render();
-      setGlobalStatus('Todo el progreso se ha borrado.', 'ok');
+      setGlobalStatus('Todo el progreso y el historial de intentos de este dispositivo se han borrado.', 'ok');
     }
 
     function copySummary() {
@@ -1426,6 +1429,7 @@
     }
 
     function resetForNextAttempt() {
+      const previousNames = Array.isArray(state.usedNames) ? [...state.usedNames] : [];
       state.student = { name: '', group: '', email: '' };
       state.currentExerciseIndex = 0;
       state.responses = {};
@@ -1434,7 +1438,7 @@
       state.finalScore = 0;
       state.finalMax = 0;
       state.emailPreview = '';
-      state.usedNames = [];
+      state.usedNames = previousNames;
       studentNameInput.value = '';
       studentGroupInput.value = '';
       studentEmailInput.value = '';
