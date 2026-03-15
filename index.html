@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Movimientos en geometría plana · Moto-Mates</title>
+  <meta name="description" content="Ejercicios interactivos de movimientos en geometría plana para 3º ESO.">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --blue: #1f78b4;
+      --blue-dark: #1b5e8a;
+      --green: #159957;
+      --green-soft: rgba(46, 204, 113, 0.18);
+      --red: #e74c3c;
+      --yellow: rgba(241, 196, 15, 0.55);
+      --panel: #f8fafc;
+      --line: #dbe2ea;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #eef4fb 0%, #f7f9fc 100%);
+      color: var(--ink);
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0b4b8b 0%, #2d7dd2 100%);
+      color: #fff;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 16px 34px rgba(31, 120, 180, 0.25);
+      margin-bottom: 16px;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      background: rgba(255,255,255,0.14);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .brand-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      color: #0b4b8b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+    }
+    .hero h1 {
+      margin: 12px 0 6px;
+      font-size: clamp(1.55rem, 2.6vw, 2.3rem);
+      line-height: 1.15;
+    }
+    .hero p {
+      margin: 0;
+      opacity: .96;
+      line-height: 1.45;
+      max-width: 900px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: 12px;
+      border: 1px solid #cfd8e3;
+      font-size: 16px;
+      background: #fff;
+    }
+    input:focus {
+      outline: 2px solid rgba(31, 120, 180, 0.18);
+      border-color: var(--blue);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .05s ease, opacity .2s ease, background .2s ease;
+    }
+    button:active { transform: translateY(1px); }
+    button.primary { background: var(--blue); color: white; }
+    button.primary:hover { background: var(--blue-dark); }
+    button.secondary { background: #e9f1fb; color: #17486d; }
+    button.secondary:hover { background: #dce9f8; }
+    button.ghost { background: #edf7f0; color: #166534; }
+    button.ghost:hover { background: #e0f1e5; }
+    button[disabled] { opacity: .55; cursor: not-allowed; }
+    .small { color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .progress-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-label { font-weight: 700; }
+    .progress-outer {
+      height: 14px;
+      background: #e7eef7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #1f78b4, #2ea66f);
+      transition: width .25s ease;
+    }
+    .status {
+      display: none;
+      margin-top: 12px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      line-height: 1.45;
+    }
+    .status.show { display: block; }
+    .status.ok { background: #eef8f0; color: #175c36; border-color: #cde8d5; }
+    .status.error { background: #fff2f2; color: #8b1d1d; border-color: #efc8c8; }
+    .exercise-shell {
+      display: grid;
+      gap: 16px;
+    }
+    .exercise-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .exercise-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #edf4ff;
+      color: var(--blue-dark);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .note {
+      background: #f8fafc;
+      border: 1px dashed #cfd8e3;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: #475569;
+      line-height: 1.45;
+    }
+    .task {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .task-head {
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #f8fbff 0%, #f3f7fb 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .task-head h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+    .task-body {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: minmax(320px, 620px) minmax(250px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .svg-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+      padding: 10px;
+      overflow: auto;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      padding: 14px;
+    }
+    .counter { color: var(--blue-dark); font-weight: 700; margin-bottom: 10px; }
+    .point-list {
+      min-height: 50px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .chip {
+      background: #edf4ff;
+      color: var(--blue-dark);
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .task-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,.12);
+    }
+    .legend-orig { background: var(--yellow); }
+    .legend-user { background: rgba(31, 120, 180, .5); }
+    .legend-sol { background: rgba(46, 204, 113, .42); }
+    .legend-axis { background: var(--blue); border-radius: 2px; }
+    .task-feedback {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      line-height: 1.45;
+      background: #f8fafc;
+    }
+    .task-feedback.show { display: block; }
+    .task-feedback.ok { background: #eef8f0; border-color: #cde8d5; color: #175c36; }
+    .task-feedback.error { background: #fff5f5; border-color: #f0c9c9; color: #8c1d1d; }
+    .exercise-feedback {
+      display: none;
+      border: 1px solid #dbe8f8;
+      background: linear-gradient(180deg, #f8fbff 0%, #f2f7fd 100%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      line-height: 1.5;
+    }
+    .exercise-feedback.show { display: block; }
+    .exercise-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .summary-list {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    svg.interactive-plane {
+      width: 100%;
+      height: auto;
+      max-height: 78vh;
+      background: #fff;
+      border-radius: 12px;
+      touch-action: none;
+      display: block;
+    }
+    .svg-caption { margin-top: 8px; font-size: 14px; color: var(--muted); }
+    code.inline {
+      background: #eef4ff;
+      padding: 2px 6px;
+      border-radius: 7px;
+      font-size: 13px;
+    }
+    details {
+      border: 1px dashed #cfd8e3;
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #f9fbfe;
+    }
+    summary { cursor: pointer; font-weight: 700; }
+    @media (max-width: 940px) {
+      .task-body { grid-template-columns: 1fr; }
+      .exercise-actions { align-items: stretch; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <span class="brand-badge">M</span>
+          <span>Moto-Mates · Geometría</span>
+        </div>
+        <div class="small" style="color:#fff; opacity:.95; font-weight:700;">3.º ESO · Movimientos en geometría plana</div>
+      </div>
+      <h1>Ejercicios interactivos del 1 al 6</h1>
+      <p>El alumnado resuelve cada ejercicio sobre cuadrícula, recibe retroalimentación inmediata con nota y solución al terminar cada uno, y en el ejercicio 6 se envía el resumen final por correo mediante EmailJS.</p>
+    </section>
+
+    <section class="card">
+      <div class="student-grid">
+        <div>
+          <label for="studentName">Nombre y apellidos</label>
+          <input id="studentName" placeholder="Escribe tu nombre completo">
+        </div>
+        <div>
+          <label for="studentGroup">Grupo</label>
+          <input id="studentGroup" placeholder="3º ESO A">
+        </div>
+        <div>
+          <label for="studentEmail">Correo del alumno/a (opcional)</label>
+          <input id="studentEmail" placeholder="alumno@centro.es">
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="secondary" id="resetBtn">Borrar todo</button>
+        <button class="ghost" id="exportBtn">Copiar resumen</button>
+      </div>
+      <div class="footer-note">La app guarda el progreso en este dispositivo para que el alumnado no lo pierda si recarga la página.</div>
+      <div id="globalStatus" class="status"></div>
+    </section>
+
+    <section class="card">
+      <div class="progress-wrap">
+        <div>
+          <div class="progress-label" id="progressLabel">Ejercicio 1 de 6</div>
+          <div class="small" id="scoreLabel">Puntuación acumulada: 0/0</div>
+        </div>
+        <div class="small" id="sendStatusText">Correo pendiente de enviar al final.</div>
+      </div>
+      <div class="progress-outer">
+        <div class="progress-inner" id="progressBar"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>Configuración rápida de EmailJS</summary>
+        <div class="small" style="margin-top:10px;">
+          Edita el objeto <code class="inline">EMAILJS_CONFIG</code> en este archivo y pega tu <strong>publicKey</strong>, <strong>serviceId</strong>, <strong>templateId</strong> y el correo del profesor. El envío se hace al terminar el ejercicio 6.
+        </div>
+      </details>
+    </section>
+
+    <section class="card" id="exerciseMount"></section>
+  </div>
+
+  <script>
+    const EMAILJS_CONFIG = {
+      publicKey: 'WsygDmLij8TCHTJj2', // Account > Public Key
+      serviceId: 'service_540t7za', // Email Services > tu servicio
+      templateId: 'template_3df56cg', // Email Templates > tu plantilla
+      toEmail: 'dcorcha735@g.educaand.es',
+      teacherName: 'David Cortés Chaparro' // ya configurado
+    };
+
+    const STORAGE_KEY = 'motomates_movimientos_v1_emailjs';
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const GRID_UNIT = 34;
+    const MARGIN = 28;
+
+    const EXERCISES = [
+      {
+        id: 'ex1',
+        title: 'Ejercicio 1',
+        intro: 'Aplica a la figura F una traslación de vector v = (4, -5).',
+        tasks: [
+          {
+            id: 'ex1_main',
+            label: 'Traslación de la figura F',
+            help: 'Marca los 7 vértices de la figura trasladada F\'. Puedes empezar por cualquier vértice.',
+            expectedClicks: 7,
+            mode: 'polygon',
+            ordered: false,
+            grid: { xmin: -8, xmax: 8, ymin: -7, ymax: 6 },
+            originals: [
+              { type: 'polygon', label: 'F', fill: 'rgba(241, 196, 15, 0.72)', stroke: '#c0392b', points: [[-5,2],[-2,2],[-2,1],[0,2],[-2,4],[-2,3],[-5,3]] }
+            ],
+            annotations: [
+              { type: 'text', at: [-6.7, 5.3], text: 'v = (4, -5)', color: '#475569' }
+            ],
+            target: [[-1,-3],[2,-3],[2,-4],[4,-3],[2,-1],[2,-2],[-1,-2]],
+            solutionColor: '#159957'
+          }
+        ]
+      },
+      {
+        id: 'ex2',
+        title: 'Ejercicio 2',
+        intro: 'Dibuja el pentágono A(1,4), B(4,5), C(5,2), D(4,0), E(1,1) y realiza las dos transformaciones.',
+        tasks: [
+          {
+            id: 'ex2a',
+            label: 'a) Traslación Tᵥ(ABCDE), con v = (-2, -5)',
+            help: 'Marca en orden A\', B\', C\', D\', E\'.',
+            expectedClicks: 5,
+            mode: 'polygon',
+            ordered: true,
+            grid: { xmin: -7, xmax: 7, ymin: -7, ymax: 7 },
+            originals: [
+              { type: 'polygon', label: 'ABCDE', fill: 'rgba(241, 196, 15, 0.55)', stroke: '#c0392b', points: [[1,4],[4,5],[5,2],[4,0],[1,1]], vertexLabels: ['A','B','C','D','E'] }
+            ],
+            target: [[-1,-1],[2,0],[3,-3],[2,-5],[-1,-4]],
+            solutionColor: '#159957'
+          },
+          {
+            id: 'ex2b',
+            label: 'b) Simetría respecto del eje OY',
+            help: 'Marca en orden A\'\', B\'\', C\'\', D\'\', E\'\'.',
+            expectedClicks: 5,
+            mode: 'polygon',
+            ordered: true,
+            grid: { xmin: -7, xmax: 7, ymin: -2, ymax: 7 },
+            originals: [
+              { type: 'line', label: 'OY', stroke: '#1f78b4', from: [0,-2], to: [0,7] },
+              { type: 'polygon', label: 'ABCDE', fill: 'rgba(241, 196, 15, 0.55)', stroke: '#c0392b', points: [[1,4],[4,5],[5,2],[4,0],[1,1]], vertexLabels: ['A','B','C','D','E'] }
+            ],
+            target: [[-1,4],[-4,5],[-5,2],[-4,0],[-1,1]],
+            solutionColor: '#159957'
+          }
+        ]
+      },
+      {
+        id: 'ex3',
+        title: 'Ejercicio 3',
+        intro: 'Aplica a las figuras F1 y F2 una traslación de vector t = (3, -2).',
+        tasks: [
+          {
+            id: 'ex3a',
+            label: 'Figura F1 trasladada',
+            help: 'Marca los 4 vértices de F1\'. Puedes empezar por cualquier vértice.',
+            expectedClicks: 4,
+            mode: 'polygon',
+            ordered: false,
+            grid: { xmin: -7, xmax: 10, ymin: -6, ymax: 8 },
+            originals: [
+              { type: 'polygon', label: 'F1', fill: 'rgba(52, 152, 219, 0.55)', stroke: '#c0392b', points: [[-6,4],[-3,4],[-1,3],[-5,1]] },
+              { type: 'circle', label: 'F2', fill: 'rgba(231, 76, 60, 0.35)', stroke: '#e74c3c', center: [4,3], radius: 2 }
+            ],
+            annotations: [
+              { type: 'text', at: [-6.4, 7.15], text: 't = (3, -2)', color: '#475569' }
+            ],
+            target: [[-3,2],[0,2],[2,1],[-2,-1]],
+            solutionColor: '#159957'
+          },
+          {
+            id: 'ex3b',
+            label: 'Centro de la circunferencia F2 trasladada',
+            help: 'Marca solo el centro de F2\'. El radio sigue siendo 2.',
+            expectedClicks: 1,
+            mode: 'point',
+            ordered: true,
+            previewRadius: 2,
+            grid: { xmin: -7, xmax: 10, ymin: -6, ymax: 8 },
+            originals: [
+              { type: 'polygon', label: 'F1', fill: 'rgba(52, 152, 219, 0.55)', stroke: '#c0392b', points: [[-6,4],[-3,4],[-1,3],[-5,1]] },
+              { type: 'circle', label: 'F2', fill: 'rgba(231, 76, 60, 0.35)', stroke: '#e74c3c', center: [4,3], radius: 2 }
+            ],
+            target: [[7,1]],
+            solutionColor: '#159957'
+          }
+        ]
+      },
+      {
+        id: 'ex4',
+        title: 'Ejercicio 4',
+        intro: 'Halla las coordenadas de los vértices del rombo ABCD transformado mediante las dos simetrías pedidas.',
+        tasks: [
+          {
+            id: 'ex4a',
+            label: 'a) Simetría de eje OY',
+            help: 'Marca en orden A\', B\', C\', D\'.',
+            expectedClicks: 4,
+            mode: 'polygon',
+            ordered: true,
+            grid: { xmin: -8, xmax: 8, ymin: -2, ymax: 8 },
+            originals: [
+              { type: 'line', label: 'OY', stroke: '#1f78b4', from: [0,-2], to: [0,8] },
+              { type: 'polygon', label: 'ABCD', fill: 'rgba(255,255,255,0)', stroke: '#333333', points: [[-6,6],[1,7],[6,2],[-1,1]], vertexLabels: ['A','B','C','D'] }
+            ],
+            target: [[6,6],[-1,7],[-6,2],[1,1]],
+            solutionColor: '#159957'
+          },
+          {
+            id: 'ex4b',
+            label: 'b) Simetría respecto de la recta que pasa por C(6,2) y P(0,-4)',
+            help: 'Marca en orden A\'\', B\'\', C\'\', D\'\'.',
+            expectedClicks: 4,
+            mode: 'polygon',
+            ordered: true,
+            grid: { xmin: -8, xmax: 12, ymin: -11, ymax: 8 },
+            originals: [
+              { type: 'line', label: 'e', stroke: '#1f78b4', from: [-8,-12], to: [12,8] },
+              { type: 'polygon', label: 'ABCD', fill: 'rgba(255,255,255,0)', stroke: '#333333', points: [[-6,6],[1,7],[6,2],[-1,1]], vertexLabels: ['A','B','C','D'] }
+            ],
+            target: [[10,-10],[11,-3],[6,2],[5,-5]],
+            solutionColor: '#159957'
+          }
+        ]
+      },
+      {
+        id: 'ex5',
+        title: 'Ejercicio 5',
+        intro: 'Obtén la figura transformada de F al aplicarle una simetría de eje e.',
+        tasks: [
+          {
+            id: 'ex5a',
+            label: 'Simetría respecto del eje oblicuo e',
+            help: 'Marca los 6 vértices de F\'. Puedes empezar por cualquier vértice.',
+            expectedClicks: 6,
+            mode: 'polygon',
+            ordered: false,
+            grid: { xmin: -7, xmax: 7, ymin: -7, ymax: 7 },
+            originals: [
+              { type: 'line', label: 'e', stroke: '#1f78b4', from: [-7,-7], to: [7,7] },
+              { type: 'polygon', label: 'F', fill: 'rgba(231, 76, 60, 0.46)', stroke: '#e74c3c', points: [[-3,4],[1,4],[1,2],[-1,2],[-1,1],[-3,1]] }
+            ],
+            target: [[4,-3],[4,1],[2,1],[2,-1],[1,-1],[1,-3]],
+            solutionColor: '#159957'
+          }
+        ]
+      },
+      {
+        id: 'ex6',
+        title: 'Ejercicio 6',
+        intro: 'Aplica un giro de centro en O y ángulo α = 90° en sentido positivo (antihorario) al triángulo ABC.',
+        tasks: [
+          {
+            id: 'ex6a',
+            label: 'Giro de 90° antihorario',
+            help: 'Marca en orden A\', B\', C\'.',
+            expectedClicks: 3,
+            mode: 'polygon',
+            ordered: true,
+            grid: { xmin: -4, xmax: 8, ymin: -8, ymax: 8 },
+            originals: [
+              { type: 'polygon', label: 'ABC', fill: 'rgba(241, 196, 15, 0.55)', stroke: '#e74c3c', points: [[2,0],[7,0],[5,-2]], vertexLabels: ['A','B','C'] }
+            ],
+            annotations: [
+              { type: 'arc', center: [0,0], radius: 1.4, startDeg: 0, endDeg: 90, color: '#1f78b4', text: '90°' }
+            ],
+            target: [[0,2],[0,7],[2,5]],
+            solutionColor: '#159957'
+          }
+        ]
+      }
+    ];
+
+    const state = loadState() || {
+      student: { name: '', group: '', email: '' },
+      currentExerciseIndex: 0,
+      responses: {},
+      results: {},
+      mailSent: false,
+      finalScore: 0,
+      finalMax: 0,
+      emailPreview: ''
+    };
+
+    const studentNameInput = document.getElementById('studentName');
+    const studentGroupInput = document.getElementById('studentGroup');
+    const studentEmailInput = document.getElementById('studentEmail');
+    const globalStatus = document.getElementById('globalStatus');
+    const exerciseMount = document.getElementById('exerciseMount');
+    const progressLabel = document.getElementById('progressLabel');
+    const scoreLabel = document.getElementById('scoreLabel');
+    const progressBar = document.getElementById('progressBar');
+    const sendStatusText = document.getElementById('sendStatusText');
+
+    studentNameInput.value = state.student.name || '';
+    studentGroupInput.value = state.student.group || '';
+    studentEmailInput.value = state.student.email || '';
+
+    [studentNameInput, studentGroupInput, studentEmailInput].forEach((input) => {
+      input.addEventListener('input', () => {
+        state.student = {
+          name: studentNameInput.value.trim(),
+          group: studentGroupInput.value.trim(),
+          email: studentEmailInput.value.trim()
+        };
+        saveState();
+      });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('exportBtn').addEventListener('click', copySummary);
+
+    initEmailJS();
+    render();
+
+    function initEmailJS() {
+      if (!window.emailjs) return;
+      if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey.includes('PON_AQUI')) return;
+      emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+    }
+
+    function render() {
+      const currentIndex = Math.max(0, Math.min(state.currentExerciseIndex, EXERCISES.length - 1));
+      state.currentExerciseIndex = currentIndex;
+      const exercise = EXERCISES[currentIndex];
+      renderProgress();
+      exerciseMount.innerHTML = '';
+      exerciseMount.appendChild(renderExercise(exercise, currentIndex));
+      saveState();
+    }
+
+    function renderProgress() {
+      const totalExercises = EXERCISES.length;
+      const completedExercises = EXERCISES.filter((ex) => state.results[ex.id]?.checked).length;
+      const { score, max } = computeTotals();
+      progressLabel.textContent = `Ejercicio ${state.currentExerciseIndex + 1} de ${totalExercises}`;
+      scoreLabel.textContent = `Puntuación acumulada: ${score}/${max}`;
+      progressBar.style.width = `${(completedExercises / totalExercises) * 100}%`;
+      sendStatusText.textContent = state.mailSent ? 'Correo final enviado.' : 'Correo pendiente de enviar al final.';
+    }
+
+    function renderExercise(exercise, index) {
+      const shell = document.createElement('div');
+      shell.className = 'exercise-shell';
+
+      const header = document.createElement('div');
+      header.className = 'exercise-header';
+      header.innerHTML = `
+        <div>
+          <div class="exercise-badge">Tema · ${exercise.title}</div>
+          <h2 style="margin:10px 0 6px;">${exercise.title}</h2>
+          <div class="small">${exercise.intro}</div>
+        </div>
+        <div class="small" style="max-width:360px; text-align:right;">
+          Completa todos los apartados del ejercicio, pulsa <strong>Comprobar ejercicio</strong>, revisa la solución y pasa al siguiente.
+        </div>
+      `;
+
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.innerHTML = `Haz clic sobre las intersecciones de la cuadrícula. La app ajusta cada clic al punto entero más cercano. Los cuadros tienen la misma escala en <strong>x</strong> y en <strong>y</strong>.`;
+
+      shell.appendChild(header);
+      shell.appendChild(note);
+
+      exercise.tasks.forEach((task) => shell.appendChild(renderTask(exercise, task)));
+
+      const feedback = document.createElement('div');
+      feedback.className = 'exercise-feedback';
+      feedback.id = `exercise-feedback-${exercise.id}`;
+      const result = state.results[exercise.id];
+      if (result?.checked) {
+        feedback.classList.add('show');
+        feedback.innerHTML = buildExerciseFeedbackHtml(exercise, result);
+      }
+      shell.appendChild(feedback);
+
+      const actions = document.createElement('div');
+      actions.className = 'exercise-actions';
+
+      const left = document.createElement('div');
+      left.className = 'toolbar';
+
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'primary';
+      checkBtn.textContent = result?.checked ? 'Ejercicio ya corregido' : 'Comprobar ejercicio';
+      checkBtn.disabled = !!result?.checked;
+      checkBtn.addEventListener('click', () => checkExercise(exercise.id));
+      left.appendChild(checkBtn);
+
+      const clearCurrentBtn = document.createElement('button');
+      clearCurrentBtn.className = 'secondary';
+      clearCurrentBtn.textContent = 'Borrar respuestas de este ejercicio';
+      clearCurrentBtn.disabled = !!result?.checked;
+      clearCurrentBtn.addEventListener('click', () => clearExercise(exercise.id));
+      left.appendChild(clearCurrentBtn);
+
+      actions.appendChild(left);
+
+      const right = document.createElement('div');
+      right.className = 'toolbar';
+
+      if (index > 0) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'secondary';
+        prevBtn.textContent = 'Anterior';
+        prevBtn.addEventListener('click', () => {
+          state.currentExerciseIndex = Math.max(0, state.currentExerciseIndex - 1);
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        right.appendChild(prevBtn);
+      }
+
+      if (result?.checked) {
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'ghost';
+        nextBtn.textContent = index < EXERCISES.length - 1 ? 'Siguiente ejercicio' : 'Finalizado';
+        nextBtn.disabled = index >= EXERCISES.length - 1;
+        nextBtn.addEventListener('click', () => {
+          state.currentExerciseIndex = Math.min(EXERCISES.length - 1, state.currentExerciseIndex + 1);
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        right.appendChild(nextBtn);
+      }
+
+      actions.appendChild(right);
+      shell.appendChild(actions);
+
+      return shell;
+    }
+
+    function renderTask(exercise, task) {
+      const response = getTaskResponse(task.id);
+      const taskWrapper = document.createElement('article');
+      taskWrapper.className = 'task';
+
+      const head = document.createElement('div');
+      head.className = 'task-head';
+      head.innerHTML = `<h3>${task.label}</h3><div class="small">${task.help}</div>`;
+
+      const body = document.createElement('div');
+      body.className = 'task-body';
+
+      const svgBox = document.createElement('div');
+      svgBox.className = 'svg-box';
+      const svg = buildTaskSvg(task, response);
+      svgBox.appendChild(svg);
+      const caption = document.createElement('div');
+      caption.className = 'svg-caption';
+      caption.textContent = state.results[exercise.id]?.checked ? 'La solución correcta aparece superpuesta en verde.' : 'La respuesta del alumno/a se dibuja en azul sobre la cuadrícula.';
+      svgBox.appendChild(caption);
+
+      const panel = document.createElement('div');
+      panel.className = 'panel';
+      const labels = buildExpectedLabels(task);
+      panel.innerHTML = `
+        <div class="counter">Puntos marcados: ${response.points.length}/${task.expectedClicks}</div>
+        <div class="point-list">${response.points.length ? response.points.map((p, i) => `<span class="chip">${labels[i] || 'P'} = (${p[0]}, ${p[1]})</span>`).join('') : '<span class="small">Todavía no has marcado puntos.</span>'}</div>
+        <div class="task-actions">
+          <button class="secondary" ${state.results[exercise.id]?.checked ? 'disabled' : ''} data-action="undo">Deshacer último</button>
+          <button class="secondary" ${state.results[exercise.id]?.checked ? 'disabled' : ''} data-action="clear">Borrar tarea</button>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot legend-orig"></span> Figura original</span>
+          <span class="legend-item"><span class="legend-dot legend-user"></span> Respuesta del alumno/a</span>
+          <span class="legend-item"><span class="legend-dot legend-sol"></span> Solución</span>
+          <span class="legend-item"><span class="legend-dot legend-axis"></span> Eje / guía</span>
+        </div>
+      `;
+
+      panel.querySelector('[data-action="undo"]').addEventListener('click', () => {
+        if (state.results[exercise.id]?.checked) return;
+        undoLast(task.id);
+      });
+      panel.querySelector('[data-action="clear"]').addEventListener('click', () => {
+        if (state.results[exercise.id]?.checked) return;
+        clearTask(task.id);
+      });
+
+      const feedback = document.createElement('div');
+      feedback.className = 'task-feedback';
+      feedback.id = `task-feedback-${task.id}`;
+      const taskResult = state.results[exercise.id]?.tasks?.find((t) => t.taskId === task.id);
+      if (taskResult) {
+        feedback.classList.add('show', taskResult.correct ? 'ok' : 'error');
+        feedback.innerHTML = buildTaskFeedbackHtml(task, taskResult);
+      }
+      panel.appendChild(feedback);
+
+      body.appendChild(svgBox);
+      body.appendChild(panel);
+      taskWrapper.appendChild(head);
+      taskWrapper.appendChild(body);
+      return taskWrapper;
+    }
+
+    function buildTaskSvg(task, response) {
+      const { xmin, xmax, ymin, ymax } = task.grid;
+      const width = (xmax - xmin) * GRID_UNIT + MARGIN * 2;
+      const height = (ymax - ymin) * GRID_UNIT + MARGIN * 2;
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('class', 'interactive-plane');
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.dataset.taskId = task.id;
+
+      drawGrid(svg, task.grid);
+      drawAxes(svg, task.grid);
+      (task.originals || []).forEach((item) => drawOriginal(svg, item, task.grid));
+      (task.annotations || []).forEach((ann) => drawAnnotation(svg, ann, task.grid));
+      drawUserResponse(svg, task, response);
+
+      const owningExercise = EXERCISES.find((ex) => ex.tasks.some((t) => t.id === task.id));
+      if (state.results[owningExercise.id]?.checked) {
+        drawSolution(svg, task);
+      } else {
+        svg.addEventListener('pointerdown', (evt) => handleSvgPointer(evt, task));
+      }
+
+      return svg;
+    }
+
+    function drawGrid(svg, grid) {
+      for (let x = grid.xmin; x <= grid.xmax; x++) {
+        svg.appendChild(makeLine(toSvgX(x, grid), toSvgY(grid.ymin, grid), toSvgX(x, grid), toSvgY(grid.ymax, grid), '#d9e3ef', 1));
+      }
+      for (let y = grid.ymin; y <= grid.ymax; y++) {
+        svg.appendChild(makeLine(toSvgX(grid.xmin, grid), toSvgY(y, grid), toSvgX(grid.xmax, grid), toSvgY(y, grid), '#d9e3ef', 1));
+      }
+    }
+
+    function drawAxes(svg, grid) {
+      if (grid.xmin <= 0 && grid.xmax >= 0) {
+        svg.appendChild(makeLine(toSvgX(0, grid), toSvgY(grid.ymin, grid), toSvgX(0, grid), toSvgY(grid.ymax, grid), '#111827', 2));
+      }
+      if (grid.ymin <= 0 && grid.ymax >= 0) {
+        svg.appendChild(makeLine(toSvgX(grid.xmin, grid), toSvgY(0, grid), toSvgX(grid.xmax, grid), toSvgY(0, grid), '#111827', 2));
+      }
+      for (let x = grid.xmin; x <= grid.xmax; x++) {
+        if (x === 0) continue;
+        const tx = makeText(x, [x, Math.min(-0.3, grid.ymax - 0.2)], grid, '#6b7280', 12, 'middle');
+        svg.appendChild(tx);
+      }
+      for (let y = grid.ymin; y <= grid.ymax; y++) {
+        if (y === 0) continue;
+        const ty = makeText(y, [Math.max(grid.xmin + 0.2, -0.35), y], grid, '#6b7280', 12, 'end');
+        ty.setAttribute('dy', '4');
+        svg.appendChild(ty);
+      }
+    }
+
+    function drawOriginal(svg, item, grid) {
+      if (item.type === 'polygon') {
+        const poly = document.createElementNS(SVG_NS, 'polygon');
+        poly.setAttribute('points', item.points.map((p) => `${toSvgX(p[0], grid)},${toSvgY(p[1], grid)}`).join(' '));
+        poly.setAttribute('fill', item.fill || 'transparent');
+        poly.setAttribute('stroke', item.stroke || '#333');
+        poly.setAttribute('stroke-width', 2.2);
+        svg.appendChild(poly);
+
+        item.points.forEach((p, idx) => {
+          const c = makeCircle(p, grid, 4.2, item.stroke || '#333', item.stroke || '#333');
+          svg.appendChild(c);
+          const labelText = item.vertexLabels?.[idx] || (idx === 0 && item.label ? item.label : '');
+          if (labelText) {
+            const label = makeText(labelText, [p[0] + 0.22, p[1] + 0.22], grid, '#334155', 13, 'start');
+            label.setAttribute('font-weight', '700');
+            svg.appendChild(label);
+          }
+        });
+      }
+      if (item.type === 'circle') {
+        const circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', toSvgX(item.center[0], grid));
+        circle.setAttribute('cy', toSvgY(item.center[1], grid));
+        circle.setAttribute('r', item.radius * GRID_UNIT);
+        circle.setAttribute('fill', item.fill || 'transparent');
+        circle.setAttribute('stroke', item.stroke || '#333');
+        circle.setAttribute('stroke-width', 2.2);
+        svg.appendChild(circle);
+        svg.appendChild(makeCircle(item.center, grid, 4.2, item.stroke || '#333', item.stroke || '#333'));
+        if (item.label) {
+          const txt = makeText(item.label, [item.center[0] + .2, item.center[1] + item.radius + .35], grid, '#334155', 13, 'start');
+          txt.setAttribute('font-weight', '700');
+          svg.appendChild(txt);
+        }
+      }
+      if (item.type === 'line') {
+        svg.appendChild(makeLine(toSvgX(item.from[0], grid), toSvgY(item.from[1], grid), toSvgX(item.to[0], grid), toSvgY(item.to[1], grid), item.stroke || '#1f78b4', 2.4));
+        if (item.label) {
+          const anchor = midpoint(item.from, item.to);
+          const txt = makeText(item.label, [anchor[0] + 0.24, anchor[1] + 0.26], grid, item.stroke || '#1f78b4', 13, 'start');
+          txt.setAttribute('font-weight', '700');
+          svg.appendChild(txt);
+        }
+      }
+    }
+
+    function drawAnnotation(svg, ann, grid) {
+      if (ann.type === 'text') {
+        const txt = makeText(ann.text, ann.at, grid, ann.color || '#555', 14, 'start');
+        txt.setAttribute('font-weight', '700');
+        svg.appendChild(txt);
+      }
+      if (ann.type === 'arc') {
+        const arcPath = polarArcPath(ann.center, ann.radius, ann.startDeg, ann.endDeg, grid);
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', arcPath);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', ann.color || '#1f78b4');
+        path.setAttribute('stroke-width', 2.2);
+        svg.appendChild(path);
+
+        const end = pointOnArc(ann.center, ann.radius, ann.endDeg);
+        const arr = makeArrow(end, ann.endDeg + 90, grid, ann.color || '#1f78b4');
+        svg.appendChild(arr);
+        if (ann.text) {
+          const mid = pointOnArc(ann.center, ann.radius + 0.45, (ann.startDeg + ann.endDeg) / 2);
+          const txt = makeText(ann.text, mid, grid, ann.color || '#1f78b4', 13, 'middle');
+          txt.setAttribute('font-weight', '700');
+          svg.appendChild(txt);
+        }
+      }
+    }
+
+    function drawUserResponse(svg, task, response) {
+      if (!response.points.length) return;
+      if (task.mode === 'polygon' && response.points.length >= 2) {
+        const poly = document.createElementNS(SVG_NS, 'polygon');
+        poly.setAttribute('points', response.points.map((p) => `${toSvgX(p[0], task.grid)},${toSvgY(p[1], task.grid)}`).join(' '));
+        poly.setAttribute('fill', 'rgba(31, 120, 180, 0.22)');
+        poly.setAttribute('stroke', '#1f78b4');
+        poly.setAttribute('stroke-width', 2.2);
+        svg.appendChild(poly);
+      }
+      response.points.forEach((p, idx) => {
+        svg.appendChild(makeCircle(p, task.grid, 4.8, '#1f78b4', '#1f78b4'));
+        const label = buildExpectedLabels(task)[idx] || 'P';
+        const txt = makeText(label, [p[0] + .2, p[1] + .22], task.grid, '#1f78b4', 13, 'start');
+        txt.setAttribute('font-weight', '700');
+        svg.appendChild(txt);
+      });
+      if (task.mode === 'point' && response.points.length === 1 && task.previewRadius) {
+        const circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', toSvgX(response.points[0][0], task.grid));
+        circle.setAttribute('cy', toSvgY(response.points[0][1], task.grid));
+        circle.setAttribute('r', task.previewRadius * GRID_UNIT);
+        circle.setAttribute('fill', 'rgba(31, 120, 180, 0.08)');
+        circle.setAttribute('stroke', '#1f78b4');
+        circle.setAttribute('stroke-width', 2);
+        circle.setAttribute('stroke-dasharray', '6 4');
+        svg.appendChild(circle);
+      }
+    }
+
+    function drawSolution(svg, task) {
+      if (task.mode === 'polygon') {
+        const poly = document.createElementNS(SVG_NS, 'polygon');
+        poly.setAttribute('points', task.target.map((p) => `${toSvgX(p[0], task.grid)},${toSvgY(p[1], task.grid)}`).join(' '));
+        poly.setAttribute('fill', 'rgba(46, 204, 113, 0.24)');
+        poly.setAttribute('stroke', task.solutionColor || '#159957');
+        poly.setAttribute('stroke-width', 2.5);
+        svg.appendChild(poly);
+        task.target.forEach((p, idx) => {
+          svg.appendChild(makeCircle(p, task.grid, 4.6, task.solutionColor || '#159957', task.solutionColor || '#159957'));
+          const txt = makeText(buildExpectedLabels(task)[idx] || 'P', [p[0] + .22, p[1] - .28], task.grid, task.solutionColor || '#159957', 13, 'start');
+          txt.setAttribute('font-weight', '700');
+          svg.appendChild(txt);
+        });
+      }
+      if (task.mode === 'point') {
+        const p = task.target[0];
+        if (task.previewRadius) {
+          const circle = document.createElementNS(SVG_NS, 'circle');
+          circle.setAttribute('cx', toSvgX(p[0], task.grid));
+          circle.setAttribute('cy', toSvgY(p[1], task.grid));
+          circle.setAttribute('r', task.previewRadius * GRID_UNIT);
+          circle.setAttribute('fill', 'rgba(46, 204, 113, 0.15)');
+          circle.setAttribute('stroke', task.solutionColor || '#159957');
+          circle.setAttribute('stroke-width', 2.4);
+          svg.appendChild(circle);
+        }
+        svg.appendChild(makeCircle(p, task.grid, 5, task.solutionColor || '#159957', task.solutionColor || '#159957'));
+        const txt = makeText('Centro', [p[0] + .2, p[1] + .2], task.grid, task.solutionColor || '#159957', 13, 'start');
+        txt.setAttribute('font-weight', '700');
+        svg.appendChild(txt);
+      }
+    }
+
+    function handleSvgPointer(evt, task) {
+      const owningExercise = EXERCISES.find((ex) => ex.tasks.some((t) => t.id === task.id));
+      if (state.results[owningExercise.id]?.checked) return;
+      const response = getTaskResponse(task.id);
+      if (response.points.length >= task.expectedClicks) return;
+
+      const svg = evt.currentTarget;
+      const point = svg.createSVGPoint();
+      point.x = evt.clientX;
+      point.y = evt.clientY;
+      const transformed = point.matrixTransform(svg.getScreenCTM().inverse());
+      const mathX = Math.round((transformed.x - MARGIN) / GRID_UNIT + task.grid.xmin);
+      const mathY = Math.round((task.grid.ymax - ((transformed.y - MARGIN) / GRID_UNIT)));
+      if (mathX < task.grid.xmin || mathX > task.grid.xmax || mathY < task.grid.ymin || mathY > task.grid.ymax) return;
+
+      response.points.push([mathX, mathY]);
+      state.responses[task.id] = response;
+      saveState();
+      render();
+    }
+
+    function buildExerciseFeedbackHtml(exercise, result) {
+      const parts = result.tasks.map((t) => `<li><strong>${t.label}</strong>: ${t.correct ? 'Correcto' : 'Revisar'} · ${t.score}/${t.max}</li>`).join('');
+      const suffix = exercise.id === 'ex6' ? '<div style="margin-top:10px;"><strong>Fin del recorrido.</strong> Se ha intentado enviar el correo final con el resumen.</div>' : '';
+      return `<strong>Retroalimentación del ${exercise.title}:</strong> ${result.score}/${result.max} puntos.<ul class="summary-list">${parts}</ul>${suffix}`;
+    }
+
+    function buildTaskFeedbackHtml(task, taskResult) {
+      const solutionText = formatPoints(task.target, task.mode === 'point');
+      const answerText = formatPoints(taskResult.received, task.mode === 'point');
+      return `
+        <strong>${taskResult.correct ? 'Correcto' : 'Necesita revisión'}</strong><br>
+        Tu respuesta: ${answerText || 'sin respuesta'}<br>
+        Solución: ${solutionText}
+      `;
+    }
+
+    function checkExercise(exerciseId) {
+      const exercise = EXERCISES.find((ex) => ex.id === exerciseId);
+      if (!exercise) return;
+      if (!state.student.name.trim()) {
+        setGlobalStatus('Debes escribir el nombre y apellidos antes de corregir.', 'error');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const taskResults = [];
+      for (const task of exercise.tasks) {
+        const response = getTaskResponse(task.id);
+        if (response.points.length !== task.expectedClicks) {
+          setGlobalStatus(`En ${task.label} faltan puntos por marcar: ${response.points.length}/${task.expectedClicks}.`, 'error');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        const correct = compareResponse(response.points, task.target, task.ordered, task.mode);
+        taskResults.push({
+          taskId: task.id,
+          label: task.label,
+          correct,
+          score: correct ? 1 : 0,
+          max: 1,
+          received: response.points.map((p) => [...p])
+        });
+      }
+
+      const score = taskResults.reduce((acc, t) => acc + t.score, 0);
+      const max = taskResults.reduce((acc, t) => acc + t.max, 0);
+      state.results[exerciseId] = { checked: true, score, max, tasks: taskResults };
+      if (exerciseId === 'ex6') {
+        const totals = computeTotals();
+        state.finalScore = totals.score;
+        state.finalMax = totals.max;
+      }
+      saveState();
+      render();
+      setGlobalStatus(`Retroalimentación del ${exercise.title}: ${score}/${max}.`, 'ok');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (exerciseId === 'ex6') {
+        sendFinalEmail();
+      }
+    }
+
+    function computeTotals() {
+      let score = 0;
+      let max = 0;
+      Object.values(state.results).forEach((result) => {
+        if (!result?.checked) return;
+        score += result.score || 0;
+        max += result.max || 0;
+      });
+      return { score, max };
+    }
+
+    function compareResponse(received, target, ordered, mode) {
+      if (!Array.isArray(received) || received.length !== target.length) return false;
+      if (mode === 'point' || ordered) return sameSequence(received, target);
+      return samePolygonUpToRotation(received, target);
+    }
+
+    function sameSequence(a, b) {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i++) {
+        if (a[i][0] !== b[i][0] || a[i][1] !== b[i][1]) return false;
+      }
+      return true;
+    }
+
+    function samePolygonUpToRotation(a, b) {
+      const n = a.length;
+      for (let shift = 0; shift < n; shift++) {
+        let ok = true;
+        for (let i = 0; i < n; i++) {
+          const bi = b[(i + shift) % n];
+          if (a[i][0] !== bi[0] || a[i][1] !== bi[1]) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) return true;
+      }
+      const rev = [...b].reverse();
+      for (let shift = 0; shift < n; shift++) {
+        let ok = true;
+        for (let i = 0; i < n; i++) {
+          const bi = rev[(i + shift) % n];
+          if (a[i][0] !== bi[0] || a[i][1] !== bi[1]) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) return true;
+      }
+      return false;
+    }
+
+    function buildExpectedLabels(task) {
+      if (task.id === 'ex2a') return ['A\'', 'B\'', 'C\'', 'D\'', 'E\''];
+      if (task.id === 'ex2b') return ['A\'\'', 'B\'\'', 'C\'\'', 'D\'\'', 'E\'\''];
+      if (task.id === 'ex4a') return ['A\'', 'B\'', 'C\'', 'D\''];
+      if (task.id === 'ex4b') return ['A\'\'', 'B\'\'', 'C\'\'', 'D\'\''];
+      if (task.id === 'ex6a') return ['A\'', 'B\'', 'C\''];
+      if (task.mode === 'point') return ['Centro'];
+      return Array.from({ length: task.expectedClicks }, (_, i) => `P${i + 1}`);
+    }
+
+    function getTaskResponse(taskId) {
+      if (!state.responses[taskId]) {
+        state.responses[taskId] = { points: [] };
+      }
+      return state.responses[taskId];
+    }
+
+    function undoLast(taskId) {
+      const response = getTaskResponse(taskId);
+      response.points.pop();
+      saveState();
+      render();
+    }
+
+    function clearTask(taskId) {
+      state.responses[taskId] = { points: [] };
+      saveState();
+      render();
+    }
+
+    function clearExercise(exerciseId) {
+      const exercise = EXERCISES.find((ex) => ex.id === exerciseId);
+      if (!exercise) return;
+      exercise.tasks.forEach((task) => { state.responses[task.id] = { points: [] }; });
+      delete state.results[exerciseId];
+      saveState();
+      render();
+      setGlobalStatus(`Se han borrado las respuestas de ${exercise.title}.`, 'ok');
+    }
+
+    function resetAll() {
+      if (!confirm('Se borrarán todas las respuestas y correcciones guardadas en este dispositivo.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state.student = { name: '', group: '', email: '' };
+      state.currentExerciseIndex = 0;
+      state.responses = {};
+      state.results = {};
+      state.mailSent = false;
+      state.finalScore = 0;
+      state.finalMax = 0;
+      state.emailPreview = '';
+      studentNameInput.value = '';
+      studentGroupInput.value = '';
+      studentEmailInput.value = '';
+      render();
+      setGlobalStatus('Todo el progreso se ha borrado.', 'ok');
+    }
+
+    function copySummary() {
+      const summary = buildEmailText().text;
+      navigator.clipboard.writeText(summary).then(() => {
+        setGlobalStatus('Resumen copiado al portapapeles.', 'ok');
+      }).catch(() => {
+        setGlobalStatus('No se pudo copiar automáticamente. Usa un navegador compatible.', 'error');
+      });
+    }
+
+    async function sendFinalEmail() {
+      const totals = computeTotals();
+      state.finalScore = totals.score;
+      state.finalMax = totals.max;
+      const summary = buildEmailText();
+      state.emailPreview = summary.text;
+      saveState();
+
+      if (!window.emailjs || !isEmailJsConfigured()) {
+        state.mailSent = false;
+        saveState();
+        setGlobalStatus('El ejercicio 6 ya quedó corregido. Falta configurar EmailJS en el archivo para que el correo se envíe de verdad.', 'error');
+        renderProgress();
+        return;
+      }
+
+      try {
+        await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, summary.params);
+        state.mailSent = true;
+        saveState();
+        renderProgress();
+        setGlobalStatus(`Correo final enviado correctamente a ${EMAILJS_CONFIG.toEmail}.`, 'ok');
+      } catch (error) {
+        state.mailSent = false;
+        saveState();
+        renderProgress();
+        const msg = error && error.text ? error.text : (error && error.message ? error.message : 'Error desconocido');
+        setGlobalStatus(`El ejercicio 6 ya está corregido, pero el correo no se pudo enviar: ${msg}`, 'error');
+      }
+    }
+
+    function isEmailJsConfigured() {
+      return EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId && EMAILJS_CONFIG.toEmail &&
+        !EMAILJS_CONFIG.publicKey.includes('PON_AQUI') &&
+        !EMAILJS_CONFIG.serviceId.includes('PON_AQUI') &&
+        !EMAILJS_CONFIG.templateId.includes('PON_AQUI');
+    }
+
+    function buildEmailText() {
+      const totals = computeTotals();
+      const lines = [];
+      lines.push('Movimientos en geometría plana · Resumen final');
+      lines.push('');
+      lines.push(`Alumno/a: ${state.student.name || '-'}`);
+      lines.push(`Grupo: ${state.student.group || '-'}`);
+      lines.push(`Correo del alumno/a: ${state.student.email || '-'}`);
+      lines.push(`Resultado total: ${totals.score}/${totals.max}`);
+      lines.push(`Porcentaje: ${totals.max ? Math.round((totals.score / totals.max) * 100) : 0}%`);
+      lines.push('');
+      lines.push('Detalle por ejercicio:');
+
+      const detailHtml = [];
+      detailHtml.push('<h2>Movimientos en geometría plana · Resumen final</h2>');
+      detailHtml.push(`<p><strong>Alumno/a:</strong> ${escapeHtml(state.student.name || '-')}<br>`);
+      detailHtml.push(`<strong>Grupo:</strong> ${escapeHtml(state.student.group || '-')}<br>`);
+      detailHtml.push(`<strong>Correo del alumno/a:</strong> ${escapeHtml(state.student.email || '-')}<br>`);
+      detailHtml.push(`<strong>Resultado total:</strong> ${totals.score}/${totals.max} (${totals.max ? Math.round((totals.score / totals.max) * 100) : 0}%)</p>`);
+      detailHtml.push('<ul>');
+
+      EXERCISES.forEach((exercise) => {
+        const result = state.results[exercise.id];
+        const headerLine = result?.checked
+          ? `${exercise.title}: ${result.score}/${result.max}`
+          : `${exercise.title}: sin corregir`;
+        lines.push(`- ${headerLine}`);
+        if (result?.checked) {
+          result.tasks.forEach((taskResult) => {
+            lines.push(`    · ${taskResult.label}: ${taskResult.correct ? 'Correcto' : 'Revisar'} | respuesta ${formatPoints(taskResult.received)}`);
+          });
+        }
+        detailHtml.push(`<li><strong>${escapeHtml(exercise.title)}</strong>: ${result?.checked ? `${result.score}/${result.max}` : 'sin corregir'}<ul>`);
+        if (result?.checked) {
+          result.tasks.forEach((taskResult) => {
+            detailHtml.push(`<li>${escapeHtml(taskResult.label)}: ${taskResult.correct ? 'Correcto' : 'Revisar'} · respuesta ${escapeHtml(formatPoints(taskResult.received))}</li>`);
+          });
+        }
+        detailHtml.push('</ul></li>');
+      });
+      detailHtml.push('</ul>');
+
+      const params = {
+        to_email: EMAILJS_CONFIG.toEmail,
+        teacher_name: EMAILJS_CONFIG.teacherName,
+        student_name: state.student.name || '-',
+        student_group: state.student.group || '-',
+        student_email: state.student.email || '-',
+        score_total: String(totals.score),
+        max_total: String(totals.max),
+        percent_total: String(totals.max ? Math.round((totals.score / totals.max) * 100) : 0),
+        subject: `Entrega final · ${state.student.name || 'Alumno/a'} · Movimientos en geometría plana`,
+        exercise_summary: lines.join('\n'),
+        detail_html: detailHtml.join(''),
+        response_json: JSON.stringify(state.responses),
+        timestamp: new Date().toLocaleString('es-ES')
+      };
+
+      return { text: lines.join('\n'), params };
+    }
+
+    function formatPoints(points, pointMode = false) {
+      if (!points || !points.length) return '';
+      if (pointMode) {
+        const p = points[0];
+        return `(${p[0]}, ${p[1]})`;
+      }
+      return points.map((p) => `(${p[0]}, ${p[1]})`).join(' ');
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function setGlobalStatus(message, kind) {
+      globalStatus.textContent = message;
+      globalStatus.className = `status show ${kind}`;
+    }
+
+    function toSvgX(x, grid) {
+      return MARGIN + (x - grid.xmin) * GRID_UNIT;
+    }
+
+    function toSvgY(y, grid) {
+      return MARGIN + (grid.ymax - y) * GRID_UNIT;
+    }
+
+    function makeLine(x1, y1, x2, y2, stroke, width) {
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke', stroke);
+      line.setAttribute('stroke-width', width);
+      return line;
+    }
+
+    function makeCircle(point, grid, radius, fill, stroke) {
+      const c = document.createElementNS(SVG_NS, 'circle');
+      c.setAttribute('cx', toSvgX(point[0], grid));
+      c.setAttribute('cy', toSvgY(point[1], grid));
+      c.setAttribute('r', radius);
+      c.setAttribute('fill', fill);
+      c.setAttribute('stroke', stroke);
+      c.setAttribute('stroke-width', 1.3);
+      return c;
+    }
+
+    function makeText(text, point, grid, color, size, anchor) {
+      const t = document.createElementNS(SVG_NS, 'text');
+      t.setAttribute('x', toSvgX(point[0], grid));
+      t.setAttribute('y', toSvgY(point[1], grid));
+      t.setAttribute('fill', color);
+      t.setAttribute('font-size', size);
+      t.setAttribute('text-anchor', anchor || 'start');
+      t.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
+      t.textContent = text;
+      return t;
+    }
+
+    function midpoint(a, b) {
+      return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    }
+
+    function polarArcPath(center, radius, startDeg, endDeg, grid) {
+      const start = pointOnArc(center, radius, startDeg);
+      const end = pointOnArc(center, radius, endDeg);
+      const largeArcFlag = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+      return `M ${toSvgX(start[0], grid)} ${toSvgY(start[1], grid)} A ${radius * GRID_UNIT} ${radius * GRID_UNIT} 0 ${largeArcFlag} 0 ${toSvgX(end[0], grid)} ${toSvgY(end[1], grid)}`;
+    }
+
+    function pointOnArc(center, radius, deg) {
+      const rad = deg * Math.PI / 180;
+      return [center[0] + radius * Math.cos(rad), center[1] + radius * Math.sin(rad)];
+    }
+
+    function makeArrow(point, angleDeg, grid, color) {
+      const g = document.createElementNS(SVG_NS, 'path');
+      const x = toSvgX(point[0], grid);
+      const y = toSvgY(point[1], grid);
+      const a = angleDeg * Math.PI / 180;
+      const len = 8;
+      const wing = 5;
+      const x1 = x - len * Math.cos(a) + wing * Math.sin(a);
+      const y1 = y + len * Math.sin(a) + wing * Math.cos(a);
+      const x2 = x - len * Math.cos(a) - wing * Math.sin(a);
+      const y2 = y + len * Math.sin(a) - wing * Math.cos(a);
+      g.setAttribute('d', `M ${x1} ${y1} L ${x} ${y} L ${x2} ${y2}`);
+      g.setAttribute('fill', 'none');
+      g.setAttribute('stroke', color);
+      g.setAttribute('stroke-width', 2.2);
+      g.setAttribute('stroke-linecap', 'round');
+      g.setAttribute('stroke-linejoin', 'round');
+      return g;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
