@@ -59,16 +59,24 @@
       padding: 8px 12px;
       border-radius: 999px;
     }
-    .brand-badge {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.92);
-      color: #0b4b8b;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.95);
+      padding: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand-sub {
+      font-size: 12px;
+      opacity: .92;
+      font-weight: 600;
     }
     .hero h1 {
       margin: 12px 0 6px;
@@ -334,6 +342,24 @@
       background: #f9fbfe;
     }
     summary { cursor: pointer; font-weight: 700; }
+    .field-hint { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .start-hint {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #eef6ff;
+      color: #17486d;
+      border: 1px solid #d4e6fb;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+    .sequence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 12px;
+    }
+    .sequence .chip { background: #f1f5f9; color: #334155; }
     @media (max-width: 940px) {
       .task-body { grid-template-columns: 1fr; }
       .exercise-actions { align-items: stretch; }
@@ -346,8 +372,11 @@
     <section class="hero">
       <div class="hero-top">
         <div class="brand">
-          <span class="brand-badge">M</span>
-          <span>Moto-Mates · Geometría</span>
+          <img class="brand-logo" src="moto-mates.png" alt="Moto-Mates">
+          <span class="brand-text">
+            <span>Moto-Mates · Geometría</span>
+            <span class="brand-sub">Departamento de Matemáticas · David Cortés Chaparro</span>
+          </span>
         </div>
         <div class="small" style="color:#fff; opacity:.95; font-weight:700;">3.º ESO · Movimientos en geometría plana</div>
       </div>
@@ -360,6 +389,7 @@
         <div>
           <label for="studentName">Nombre y apellidos</label>
           <input id="studentName" placeholder="Escribe tu nombre completo">
+          <div class="field-hint">Si repites un intento, añade el número al final del nombre, por ejemplo: <strong>DAVID 2</strong>.</div>
         </div>
         <div>
           <label for="studentGroup">Grupo</label>
@@ -409,7 +439,10 @@
       serviceId: 'service_540t7za', // Email Services > tu servicio
       templateId: 'template_3df56cg', // Email Templates > tu plantilla
       toEmail: 'dcorcha735@g.educaand.es',
-      teacherName: 'David Cortés Chaparro' // ya configurado
+      teacherName: 'David Cortés Chaparro', // ya configurado
+      departmentName: 'Departamento de Matemáticas',
+      siteBaseUrl: 'https://dcorcha735.github.io/movimientos-geometria-plana',
+      logoUrl: 'https://dcorcha735.github.io/movimientos-geometria-plana/moto-mates.png'
     };
 
     const STORAGE_KEY = 'motomates_movimientos_v1_emailjs';
@@ -612,8 +645,10 @@
       mailSent: false,
       finalScore: 0,
       finalMax: 0,
-      emailPreview: ''
+      emailPreview: '',
+      usedNames: []
     };
+    if (!Array.isArray(state.usedNames)) state.usedNames = [];
 
     const studentNameInput = document.getElementById('studentName');
     const studentGroupInput = document.getElementById('studentGroup');
@@ -788,7 +823,13 @@
       const panel = document.createElement('div');
       panel.className = 'panel';
       const labels = buildExpectedLabels(task);
+      const nextLabel = labels[response.points.length] || 'Completado';
+      const orderHint = task.ordered
+        ? `Empieza por <strong>${labels[0]}</strong> y sigue este orden: ${labels.join(' → ')}. <br>Siguiente punto que debes marcar: <strong>${nextLabel}</strong>.`
+        : 'Puedes empezar por cualquier vértice. La app corregirá la figura completa al final.';
       panel.innerHTML = `
+        <div class="start-hint">${orderHint}</div>
+        ${task.ordered ? `<div class="sequence">${labels.map(l => `<span class="chip">${l}</span>`).join('')}</div>` : ''}
         <div class="counter">Puntos marcados: ${response.points.length}/${task.expectedClicks}</div>
         <div class="point-list">${response.points.length ? response.points.map((p, i) => `<span class="chip">${labels[i] || 'P'} = (${p[0]}, ${p[1]})</span>`).join('') : '<span class="small">Todavía no has marcado puntos.</span>'}</div>
         <div class="task-actions">
@@ -1061,8 +1102,9 @@
     function checkExercise(exerciseId) {
       const exercise = EXERCISES.find((ex) => ex.id === exerciseId);
       if (!exercise) return;
-      if (!state.student.name.trim()) {
-        setGlobalStatus('Debes escribir el nombre y apellidos antes de corregir.', 'error');
+      const identityError = validateStudentIdentity();
+      if (identityError) {
+        setGlobalStatus(identityError, 'error');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -1208,6 +1250,7 @@
       state.finalScore = 0;
       state.finalMax = 0;
       state.emailPreview = '';
+      state.usedNames = [];
       studentNameInput.value = '';
       studentGroupInput.value = '';
       studentEmailInput.value = '';
@@ -1235,8 +1278,8 @@
       if (!window.emailjs || !isEmailJsConfigured()) {
         state.mailSent = false;
         saveState();
-        setGlobalStatus('El ejercicio 6 ya quedó corregido. Falta configurar EmailJS en el archivo para que el correo se envíe de verdad.', 'error');
         renderProgress();
+        finishAttemptAndPrepareNext(false, 'El ejercicio 6 ya quedó corregido, pero falta configurar EmailJS para enviar el correo final.');
         return;
       }
 
@@ -1245,13 +1288,13 @@
         state.mailSent = true;
         saveState();
         renderProgress();
-        setGlobalStatus(`Correo final enviado correctamente a ${EMAILJS_CONFIG.toEmail}.`, 'ok');
+        finishAttemptAndPrepareNext(true, `Correo final enviado correctamente a ${EMAILJS_CONFIG.toEmail}.`);
       } catch (error) {
         state.mailSent = false;
         saveState();
         renderProgress();
         const msg = error && error.text ? error.text : (error && error.message ? error.message : 'Error desconocido');
-        setGlobalStatus(`El ejercicio 6 ya está corregido, pero el correo no se pudo enviar: ${msg}`, 'error');
+        finishAttemptAndPrepareNext(false, `El ejercicio 6 ya está corregido, pero el correo no se pudo enviar: ${msg}. Revisa en EmailJS el campo To Email de la plantilla y pega la plantilla correcta incluida en este proyecto.`);
       }
     }
 
@@ -1265,6 +1308,8 @@
     function buildEmailText() {
       const totals = computeTotals();
       const lines = [];
+      lines.push('Departamento de Matemáticas');
+      lines.push(EMAILJS_CONFIG.teacherName);
       lines.push('Movimientos en geometría plana · Resumen final');
       lines.push('');
       lines.push(`Alumno/a: ${state.student.name || '-'}`);
@@ -1276,7 +1321,7 @@
       lines.push('Detalle por ejercicio:');
 
       const detailHtml = [];
-      detailHtml.push('<h2>Movimientos en geometría plana · Resumen final</h2>');
+      detailHtml.push(`<div style="font-family:Arial,Helvetica,sans-serif;border:1px solid #dbe2ea;border-radius:16px;overflow:hidden"><div style="background:#1f4fb2;padding:18px 20px;color:#fff"><img src="${escapeHtml(EMAILJS_CONFIG.logoUrl || '')}" alt="Moto-Mates" style="width:90px;max-width:100%;display:block;margin-bottom:10px"><div style="font-size:18px;font-weight:700">${escapeHtml(EMAILJS_CONFIG.departmentName || 'Departamento de Matemáticas')}</div><div style="font-size:15px;margin-top:4px">${escapeHtml(EMAILJS_CONFIG.teacherName || '')}</div></div><div style="padding:18px 20px"><h2 style="margin-top:0">Movimientos en geometría plana · Resumen final</h2>`);
       detailHtml.push(`<p><strong>Alumno/a:</strong> ${escapeHtml(state.student.name || '-')}<br>`);
       detailHtml.push(`<strong>Grupo:</strong> ${escapeHtml(state.student.group || '-')}<br>`);
       detailHtml.push(`<strong>Correo del alumno/a:</strong> ${escapeHtml(state.student.email || '-')}<br>`);
@@ -1302,20 +1347,30 @@
         }
         detailHtml.push('</ul></li>');
       });
-      detailHtml.push('</ul>');
+      detailHtml.push('</ul></div></div>');
 
       const params = {
         to_email: EMAILJS_CONFIG.toEmail,
+        to_name: EMAILJS_CONFIG.teacherName,
         teacher_name: EMAILJS_CONFIG.teacherName,
         student_name: state.student.name || '-',
         student_group: state.student.group || '-',
         student_email: state.student.email || '-',
+        from_name: state.student.name || 'Alumno/a',
+        email: state.student.email || EMAILJS_CONFIG.toEmail,
+        reply_to: state.student.email || EMAILJS_CONFIG.toEmail,
+        logo_url: EMAILJS_CONFIG.logoUrl || '',
+        department_name: EMAILJS_CONFIG.departmentName || 'Departamento de Matemáticas',
+        attempt_name: state.student.name || '-',
+        message: lines.join('\n'),
         score_total: String(totals.score),
         max_total: String(totals.max),
         percent_total: String(totals.max ? Math.round((totals.score / totals.max) * 100) : 0),
         subject: `Entrega final · ${state.student.name || 'Alumno/a'} · Movimientos en geometría plana`,
         exercise_summary: lines.join('\n'),
         detail_html: detailHtml.join(''),
+        html_message: detailHtml.join(''),
+        body_html: detailHtml.join(''),
         response_json: JSON.stringify(state.responses),
         timestamp: new Date().toLocaleString('es-ES')
       };
@@ -1330,6 +1385,61 @@
         return `(${p[0]}, ${p[1]})`;
       }
       return points.map((p) => `(${p[0]}, ${p[1]})`).join(' ');
+    }
+
+
+
+    function normalizeName(name) {
+      return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function suggestNextAttemptName(name) {
+      const clean = String(name || '').trim();
+      const match = clean.match(/^(.*?)(?:\s+(\d+))?$/);
+      const base = (match?.[1] || clean).trim();
+      const current = match?.[2] ? Number(match[2]) : 1;
+      return `${base} ${current + 1}`.trim();
+    }
+
+    function validateStudentIdentity() {
+      const name = state.student.name.trim();
+      if (!name) return 'Debes escribir el nombre y apellidos antes de corregir.';
+      const normalized = normalizeName(name);
+      if (state.usedNames.some((n) => normalizeName(n) === normalized)) {
+        return `Ese nombre ya se ha usado en un intento anterior. Escribe el nombre con número de intento al final, por ejemplo: ${suggestNextAttemptName(name)}.`;
+      }
+      return '';
+    }
+
+    function finishAttemptAndPrepareNext(mailOk, message) {
+      const finishedName = state.student.name.trim();
+      if (finishedName && !state.usedNames.some((n) => normalizeName(n) === normalizeName(finishedName))) {
+        state.usedNames.push(finishedName);
+      }
+      saveState();
+      const suggested = suggestNextAttemptName(finishedName || 'Alumno');
+      const finalMsg = `${message}\n\nAhora se preparará un nuevo intento completo. En el nombre debes añadir el número de intento al final, por ejemplo: ${suggested}.\nSi repites exactamente el mismo nombre, la app no te dejará continuar.`;
+      alert(finalMsg);
+      resetForNextAttempt();
+      setGlobalStatus(`Nuevo intento preparado. Escribe el nombre con número de intento al final, por ejemplo: ${suggested}.`, mailOk ? 'ok' : 'error');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForNextAttempt() {
+      state.student = { name: '', group: '', email: '' };
+      state.currentExerciseIndex = 0;
+      state.responses = {};
+      state.results = {};
+      state.mailSent = false;
+      state.finalScore = 0;
+      state.finalMax = 0;
+      state.emailPreview = '';
+      state.usedNames = [];
+      studentNameInput.value = '';
+      studentGroupInput.value = '';
+      studentEmailInput.value = '';
+      saveState();
+      render();
     }
 
     function saveState() {
